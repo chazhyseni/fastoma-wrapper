@@ -248,4 +248,4 @@ To use a different location: `--luca-db /your/preferred/path/omamerdb.h5`
 
 If you use FastOMA in your research, please cite:
 
-> Altenhoff AM et al. (2024). FastOMA: scalable orthology inference using the OMA Hierarchical Orthologous Groups framework. *bioRxiv*. [github.com/DessimozLab/FastOMA](https://github.com/DessimozLab/FastOMA)
+> Altenhoff AM et al. (2024). FastOMA: scalable orthology inference using the OMA Hierarchical Orthologous Groups framework. *Nature Methods*. [doi.org/10.1038/s41592-024-02552-8](https://www.nature.com/articles/s41592-024-02552-8)
