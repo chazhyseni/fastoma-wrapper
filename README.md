@@ -174,7 +174,10 @@ EXECUTION:
 
 ```text
 OUTPUT_DIR/
-├── OrthologousGroups.tsv     Main result — one HOG per row, one species per column
+├── OrthologousGroups.tsv     Flat protein-to-OG assignments (two columns: Group, Protein)
+├── RootHOGs.tsv              Protein-to-root-HOG assignments (three columns)
+├── FastOMA_HOGs.orthoxml     Full hierarchical OGs in OrthoXML format
+├── orthologs.tsv.gz          Pairwise ortholog pairs
 ├── run_summary.txt           Run statistics
 ├── run.log                   Full execution log
 └── logs/
@@ -185,13 +188,26 @@ OUTPUT_DIR/
 
 ### OrthologousGroups.tsv format
 
+Long format — one protein per row:
+
 ```text
-OrthologyGroupID    human:ENST00000123    chimp:ENST00000456    mouse:ENST00000789
-HOG:0000001         protein_A             protein_B             protein_C
-HOG:0000002         protein_D             -                     protein_E
+Group       Protein
+OG_0000001  sp|P0CD71|EFTU_CHLTR
+OG_0000001  sp|O66429|EFTU_AQUAE
+OG_0000001  sp|P13927|EFTU_MYCGE
+OG_0000002  sp|O66778|ENO_AQUAE
+OG_0000002  sp|O84591|ENO_CHLTR
 ```
 
-Dash (`-`) indicates the species has no member in that group.
+### RootHOGs.tsv format
+
+```text
+RootHOG      Protein                  OMAmerRootHOG
+HOG:0000001  sp|P0CD71|EFTU_CHLTR    HOG:0000008
+HOG:0000001  sp|O66429|EFTU_AQUAE    HOG:0000008
+HOG:0000001  sp|P13927|EFTU_MYCGE    HOG:0000008
+HOG:0000002  sp|O66778|ENO_AQUAE     HOG:0000004
+```
 
 ---
 
