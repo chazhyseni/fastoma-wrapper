@@ -330,8 +330,22 @@ download_species_data() {
     local prot_out="${WORK_DIR}/raw_proteins/${species}.fa"
     local gff_out="${WORK_DIR}/raw_gff/${species}.gff"
 
+    # Check that a reference assembly with annotation exists before downloading
+    local summary
+    summary="$(datasets summary genome taxon "${taxon}" \
+        --reference --assembly-level complete,chromosome \
+        --assembly-source RefSeq --annotated 2>/dev/null || true)"
+    local count
+    count="$(echo "${summary}" | python3 -c \
+        "import json,sys; d=json.load(sys.stdin); print(d.get('total_count',0))" 2>/dev/null || echo 0)"
+    if [[ "${count}" -eq 0 ]]; then
+        error_exit "No annotated RefSeq reference assembly found for '${taxon}' (${species}).
+  Try a more specific taxon name or provide protein/GFF files directly with --proteins-dir / --gff-dir."
+    fi
+    log "  Found ${count} assembly match(es) for ${species} (${taxon})"
+
     if [[ ! -f "${gff_out}" ]] || [[ "${FORCE_REPROCESS}" == true ]]; then
-        log "  Downloading genome/GFF for ${species} (${taxon})..."
+        log "  Downloading genome/GFF for ${species}..."
         datasets download genome taxon "${taxon}" \
             --reference --assembly-level complete,chromosome \
             --assembly-source RefSeq --annotated \
@@ -340,7 +354,7 @@ download_species_data() {
         unzip -q "${dl_dir}/genome.zip" -d "${dl_dir}/genome_data"
         find "${dl_dir}/genome_data/ncbi_dataset/data" \( -name "*.gff" -o -name "*.gff3" \) \
             | head -1 | xargs -I{} cp {} "${gff_out}"
-        [[ -f "${gff_out}" ]] || error_exit "No GFF extracted for ${species}"
+        [[ -f "${gff_out}" ]] || error_exit "No GFF extracted for ${species} — assembly may lack annotation"
     fi
 
     if [[ ! -f "${prot_out}" ]] || [[ "${FORCE_REPROCESS}" == true ]]; then
@@ -353,7 +367,7 @@ download_species_data() {
         unzip -q "${dl_dir}/protein.zip" -d "${dl_dir}/protein_data"
         find "${dl_dir}/protein_data/ncbi_dataset/data" -name "*.faa" \
             | head -1 | xargs -I{} cp {} "${prot_out}"
-        [[ -s "${prot_out}" ]] || error_exit "No proteins extracted for ${species}"
+        [[ -s "${prot_out}" ]] || error_exit "No proteins extracted for ${species} — assembly may lack annotation"
     fi
 
     rm -rf "${dl_dir}"

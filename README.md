@@ -51,7 +51,7 @@ wget -O ~/.fastoma/omamerdb.h5 https://omabrowser.org/All/LUCA.h5
 ## Dependencies
 
 | Tool | Version | Notes |
-|------|---------|-------|
+| --- | --- | --- |
 | Nextflow | 25.04.4+ | Included in `environment.yml` |
 | Java | 11+ | Included in `environment.yml` |
 | Python | 3.8+ | Included in `environment.yml` |
@@ -100,6 +100,8 @@ Species keys must match the keys in `SPECIES_LIST` in your config.
     --output-dir results/primates_v1
 ```
 
+`--auto-download` uses the scientific name from `SPECIES_LIST` to query NCBI for the RefSeq reference assembly. This works reliably for well-annotated species with a designated reference genome. For non-model organisms without a RefSeq reference or chromosome-level assembly, provide protein FASTAs and GFF files directly via `--proteins-dir` and `--gff-dir`.
+
 ---
 
 ## Config file format
@@ -126,7 +128,7 @@ See [`example_configs/primates.json`](example_configs/primates.json) for a worki
 
 ## All options
 
-```
+```text
 INPUT:
     --config FILE             JSON config file
     --species "k:Name,..."    Comma-separated "key:Scientific name" pairs
@@ -166,7 +168,7 @@ EXECUTION:
 
 ## Output
 
-```
+```text
 OUTPUT_DIR/
 ├── OrthologousGroups.tsv     Main result — one HOG per row, one species per column
 ├── run_summary.txt           Run statistics
@@ -179,7 +181,7 @@ OUTPUT_DIR/
 
 ### OrthologousGroups.tsv format
 
-```
+```text
 OrthologyGroupID    human:ENST00000123    chimp:ENST00000456    mouse:ENST00000789
 HOG:0000001         protein_A             protein_B             protein_C
 HOG:0000002         protein_D             -                     protein_E
@@ -200,7 +202,7 @@ To use a different location: `--luca-db /your/preferred/path/omamerdb.h5`
 ## System requirements
 
 | Resource | Minimum | Recommended |
-|----------|---------|-------------|
+| --- | --- | --- |
 | OS | Linux (Ubuntu 20.04+) or macOS | Linux |
 | RAM | 16 GB | 128 GB |
 | Storage | 10 GB + 7 GB (LUCA) | 100 GB |
@@ -211,7 +213,7 @@ To use a different location: `--luca-db /your/preferred/path/omamerdb.h5`
 ## Troubleshooting
 
 | Problem | Fix |
-|---------|-----|
+| --- | --- |
 | `Java heap space` error | `export NXF_OPTS="-Xms2G -Xmx8G"` |
 | Nextflow resume fails | Delete `OUTPUT_DIR/.work/work/` and rerun |
 | Low protein count after filtering | Use `--min-protein-length 30` |
@@ -226,4 +228,4 @@ To use a different location: `--luca-db /your/preferred/path/omamerdb.h5`
 
 If you use FastOMA in your research, please cite:
 
-> Altenhoff AM et al. (2024). FastOMA: scalable orthology inference using the OMA Hierarchical Orthologous Groups framework. *bioRxiv*. https://github.com/DessimozLab/FastOMA
+> Altenhoff AM et al. (2024). FastOMA: scalable orthology inference using the OMA Hierarchical Orthologous Groups framework. *bioRxiv*. [github.com/DessimozLab/FastOMA](https://github.com/DessimozLab/FastOMA)
