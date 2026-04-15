@@ -57,8 +57,9 @@ wget -O ~/.fastoma/omamerdb.h5 https://omabrowser.org/All/LUCA.h5
 | Python | 3.8+ | Included in `environment.yml` |
 | biopython | any | Included in `environment.yml` |
 | pandas | any | Included in `environment.yml` |
-| wget | any | System package |
-| ncbi-datasets-cli | any | Only needed with `--auto-download` |
+| wget | any | Included in `environment.yml` |
+| unzip | any | Included in `environment.yml` |
+| ncbi-datasets-cli | any | Included in `environment.yml`; only used with `--auto-download` |
 
 ---
 
@@ -98,8 +99,6 @@ Species keys must match the keys in `SPECIES_LIST` in your config.
     --auto-download \
     --output-dir results/primates_v1
 ```
-
-Requires `ncbi-datasets-cli`: `conda install -c bioconda ncbi-datasets-cli`
 
 ---
 
@@ -218,8 +217,8 @@ To use a different location: `--luca-db /your/preferred/path/omamerdb.h5`
 | Low protein count after filtering | Use `--min-protein-length 30` |
 | LUCA download fails or incomplete | Manually download: `wget -O ~/.fastoma/omamerdb.h5 https://omabrowser.org/All/LUCA.h5` |
 | Species tree validation error | Tree must be valid Newick ending with `;` and include branch lengths |
-| `biopython` not found | `pip install biopython pandas` |
-| `ncbi-datasets-cli` not found | `conda install -c bioconda ncbi-datasets-cli` |
+| `biopython` or `pandas` not found | Activate the conda environment: `mamba activate fastoma` |
+| `ncbi-datasets-cli` not found | Activate the conda environment: `mamba activate fastoma` |
 
 ---
 
@@ -228,9 +227,3 @@ To use a different location: `--luca-db /your/preferred/path/omamerdb.h5`
 If you use FastOMA in your research, please cite:
 
 > Altenhoff AM et al. (2024). FastOMA: scalable orthology inference using the OMA Hierarchical Orthologous Groups framework. *bioRxiv*. https://github.com/DessimozLab/FastOMA
-
----
-
-## License
-
-MIT

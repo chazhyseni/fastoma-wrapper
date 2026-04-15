@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 # =============================================================================
-# run_fastoma.sh v2.0.0
+# run_fastoma.sh
 # Wrapper around the FastOMA Nextflow pipeline (DessimozLab/FastOMA)
 # =============================================================================
-# No other repositories required. Dependencies: nextflow, java, python3,
-# biopython, pandas, wget. See README.md for full setup instructions.
+# No other repositories required. Dependencies managed via environment.yml:
+# nextflow, java, python3, biopython, pandas, wget, unzip, ncbi-datasets-cli.
+# See README.md for full setup instructions.
 #
 # Usage:
 #   ./run_fastoma.sh --config my_config.json --output-dir results/
@@ -17,7 +18,7 @@
 
 set -euo pipefail
 
-SCRIPT_VERSION="2.0.0"
+SCRIPT_VERSION="1.0.0"
 
 # =============================================================================
 # DEFAULTS
@@ -83,7 +84,7 @@ ensure_dir()  { mkdir -p "$@" || error_exit "Cannot create directory: $*"; }
 
 usage() {
     cat << 'EOF'
-run_fastoma.sh v2.0.0 — FastOMA orthology inference wrapper
+run_fastoma.sh — FastOMA orthology inference wrapper
 
 USAGE:
     ./run_fastoma.sh --config CONFIG.json --output-dir DIR [options]
@@ -292,10 +293,10 @@ validate_environment() {
     local jver; jver="$(java -version 2>&1 | head -1 | cut -d'"' -f2 | cut -d'.' -f1)"
     [[ "${jver}" -ge 11 ]] || error_exit "Java 11+ required (found ${jver})"
     python3 -c "import Bio, pandas" 2>/dev/null || \
-        error_exit "Missing Python packages. Run: pip install biopython pandas"
+        error_exit "Missing Python packages. Activate the conda environment: mamba activate fastoma"
     if [[ "${AUTO_DOWNLOAD}" == true ]]; then
         command -v datasets &>/dev/null || \
-            error_exit "ncbi-datasets-cli not found. Install: conda install -c bioconda ncbi-datasets-cli"
+            error_exit "ncbi-datasets-cli not found. Activate the conda environment: mamba activate fastoma"
     fi
     local nver; nver="$(nextflow -version 2>&1 | grep -oP 'version \K[0-9.]+' || echo unknown)"
     log "Nextflow ${nver} | Java ${jver} | ${THREADS} threads | ${MEMORY} memory"
