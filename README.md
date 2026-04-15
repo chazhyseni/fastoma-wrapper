@@ -137,7 +137,7 @@ INPUT:
 DATA SOURCES:
     --proteins-dir DIR        Per-species protein FASTAs (species.fa)
     --gff-dir DIR             Per-species GFF3 files (species.gff)
-    --auto-download           Download from NCBI (requires ncbi-datasets-cli)
+    --auto-download           Download from NCBI
 
 OUTPUT:
     --output-dir DIR          Required. Where results are written.

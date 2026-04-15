@@ -102,7 +102,6 @@ DATA SOURCES:
     --gff-dir DIR             Directory of per-species GFF3 files
                               Files must be named <species_key>.gff
     --auto-download           Download genome/protein data from NCBI
-                              Requires: ncbi-datasets-cli
 
 OUTPUT:
     --output-dir DIR          Required. Where results are written.
