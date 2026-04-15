@@ -94,7 +94,7 @@ USAGE:
 INPUT (choose one):
     --config FILE             JSON config file
     --species "k:Name,..."    Comma-separated "key:Scientific name" pairs
-    --tree NEWICK             Newick tree with branch lengths
+    --tree NEWICK             Newick tree (branch lengths optional)
 
 DATA SOURCES:
     --proteins-dir DIR        Directory of per-species protein FASTAs
@@ -182,7 +182,7 @@ TROUBLESHOOTING:
     Resume failed:   rm -rf OUTPUT_DIR/.work/work
     Low proteins:    use --min-protein-length 30
     LUCA missing:    wget -O ~/.fastoma/omamerdb.h5 https://omabrowser.org/All/LUCA.h5
-    Tree error:      Newick must end with ; and include branch lengths
+    Tree error:      Newick must end with ; (branch lengths optional)
 EOF
 }
 
@@ -511,10 +511,10 @@ run_fastoma() {
     nextflow run "${FASTOMA_REPO}" \
         -r             "${FASTOMA_REVISION}" \
         -c             "${WORK_DIR}/nextflow.config" \
-        --input_folder         "${WORK_DIR}/input" \
+        --input                "${WORK_DIR}/input" \
         --output_folder        "${OUTPUT_DIR}" \
         --species_tree         "${WORK_DIR}/input/species_tree.nwk" \
-        --database             "${WORK_DIR}/input/omamerdb.h5" \
+        --omamer_db            "${WORK_DIR}/input/omamerdb.h5" \
         --min_sequence_length  "${MIN_SEQUENCE_LENGTH}" \
         --filter_gap_ratio_row "${FILTER_GAP_RATIO_ROW}" \
         --filter_gap_ratio_col "${FILTER_GAP_RATIO_COL}" \

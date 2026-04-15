@@ -120,7 +120,7 @@ Species keys must match the keys in `SPECIES_LIST` in your config.
 ```
 
 - **`SPECIES_LIST`** keys must match filenames in `--proteins-dir` and `--gff-dir`
-- **`SPECIES_TREE`** must be valid Newick format ending with `;`, with branch lengths. A rough tree is sufficient — branch lengths do not need to be precise.
+- **`SPECIES_TREE`** must be valid Newick format ending with `;`. Branch lengths are optional — a rough topology is enough.
 
 See [`example_configs/primates.json`](example_configs/primates.json) for a working example.
 
@@ -132,7 +132,7 @@ See [`example_configs/primates.json`](example_configs/primates.json) for a worki
 INPUT:
     --config FILE             JSON config file
     --species "k:Name,..."    Comma-separated "key:Scientific name" pairs
-    --tree NEWICK             Newick tree with branch lengths
+    --tree NEWICK             Newick tree (branch lengths optional)
 
 DATA SOURCES:
     --proteins-dir DIR        Per-species protein FASTAs (species.fa)
@@ -218,7 +218,7 @@ To use a different location: `--luca-db /your/preferred/path/omamerdb.h5`
 | Nextflow resume fails | Delete `OUTPUT_DIR/.work/work/` and rerun |
 | Low protein count after filtering | Use `--min-protein-length 30` |
 | LUCA download fails or incomplete | Manually download: `wget -O ~/.fastoma/omamerdb.h5 https://omabrowser.org/All/LUCA.h5` |
-| Species tree validation error | Tree must be valid Newick ending with `;` and include branch lengths |
+| Species tree validation error | Tree must be valid Newick ending with `;` (branch lengths optional) |
 | `biopython` or `pandas` not found | Activate the conda environment: `mamba activate fastoma` |
 | `ncbi-datasets-cli` not found | Activate the conda environment: `mamba activate fastoma` |
 
