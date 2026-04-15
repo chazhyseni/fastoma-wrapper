@@ -120,7 +120,7 @@ Species keys must match the keys in `SPECIES_LIST` in your config.
 ```
 
 - **`SPECIES_LIST`** keys must match filenames in `--proteins-dir` and `--gff-dir`
-- **`SPECIES_TREE`** must be valid Newick format ending with `;`, with branch lengths
+- **`SPECIES_TREE`** must be valid Newick format ending with `;`, with branch lengths. A rough tree is sufficient — branch lengths do not need to be precise.
 
 See [`example_configs/primates.json`](example_configs/primates.json) for a working example.
 
