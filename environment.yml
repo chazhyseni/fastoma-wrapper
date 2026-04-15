@@ -7,11 +7,9 @@ dependencies:
   - python=3.12
   - nextflow>=25.04.4
   - openjdk>=11
+  - bash
   - wget
   - unzip
   - biopython>=1.85
   - pandas>=2.0
   - ncbi-datasets-cli
-  - pip
-  - pip:
-      - FastOMA==0.3.5

@@ -10,7 +10,7 @@
 # Usage:
 #   ./run_fastoma.sh --config my_config.json --output-dir results/
 #   ./run_fastoma.sh --species "human:Homo sapiens,chimp:Pan troglodytes" \
-#                    --tree "((human:6,chimp:6):75,mouse:81);" \
+#                    --tree "((human,chimp),mouse);" \
 #                    --proteins-dir /data/proteomes \
 #                    --gff-dir /data/annotations \
 #                    --output-dir results/
@@ -34,7 +34,8 @@ DEFAULT_NR_REPR_PER_HOG=3
 
 LUCA_DB_URL="https://omabrowser.org/All/LUCA.h5"
 FASTOMA_REPO="DessimozLab/FastOMA"
-FASTOMA_REVISION="main"
+FASTOMA_REVISION="v0.5.1"
+FASTOMA_PROFILE="conda"
 
 # =============================================================================
 # RUNTIME VARIABLES
@@ -99,8 +100,9 @@ INPUT (choose one):
 DATA SOURCES:
     --proteins-dir DIR        Directory of per-species protein FASTAs
                               Files must be named <species_key>.fa
-    --gff-dir DIR             Directory of per-species GFF3 files
+    --gff-dir DIR             Directory of per-species GFF3 files (optional)
                               Files must be named <species_key>.gff
+                              Prefix IDs to avoid cross-species collisions
     --auto-download           Download genome/protein data from NCBI
 
 OUTPUT:
@@ -124,6 +126,8 @@ FASTOMA / NEXTFLOW:
     --filter-gap-col F        default: 0.6
     --nr-repr-per-hog N       default: 3
     --fastoma-revision REV    FastOMA git tag or branch (default: main)
+    --fastoma-profile PROFILE FastOMA Nextflow profile: conda|docker|singularity
+                              (default: conda; use docker on macOS ARM64)
 
 EXECUTION:
     --analysis-name NAME      Label for this run (default: timestamp)
@@ -142,7 +146,7 @@ CONFIG FILE FORMAT:
             "gorilla":"Gorilla gorilla",
             "mouse":  "Mus musculus"
         },
-        "SPECIES_TREE": "(((human:6,chimp:6):2,gorilla:8):72,mouse:80);"
+        "SPECIES_TREE": "(((human,chimp),gorilla),mouse);"
     }
 
     Species keys must match the filenames in --proteins-dir and --gff-dir.
@@ -215,6 +219,7 @@ parse_arguments() {
             --filter-gap-col)       FILTER_GAP_RATIO_COL="$2";  shift 2 ;;
             --nr-repr-per-hog)      NR_REPR_PER_HOG="$2";       shift 2 ;;
             --fastoma-revision)     FASTOMA_REVISION="$2";       shift 2 ;;
+            --fastoma-profile)      FASTOMA_PROFILE="$2";        shift 2 ;;
             --auto-download)        AUTO_DOWNLOAD=true;          shift ;;
             --dry-run)              DRY_RUN=true;                shift ;;
             --force-reprocess)      FORCE_REPROCESS=true;        shift ;;
@@ -232,7 +237,6 @@ parse_arguments() {
         error_exit "--tree is required with --species"
     if [[ "${AUTO_DOWNLOAD}" == false ]]; then
         [[ -z "${PROTEINS_DIR}" ]] && error_exit "--proteins-dir required (or use --auto-download)"
-        [[ -z "${GFF_DIR}" ]]      && error_exit "--gff-dir required (or use --auto-download)"
     fi
 
     [[ -z "${WORK_DIR}" ]]      && WORK_DIR="${OUTPUT_DIR}/.work"
@@ -297,7 +301,7 @@ validate_environment() {
         command -v datasets &>/dev/null || \
             error_exit "ncbi-datasets-cli not found. Activate the conda environment: mamba activate fastoma"
     fi
-    local nver; nver="$(nextflow -version 2>&1 | grep -oP 'version \K[0-9.]+' || echo unknown)"
+    local nver; nver="$(nextflow -version 2>&1 | grep -o 'version [0-9.]*' | awk '{print $2}' || echo unknown)"
     log "Nextflow ${nver} | Java ${jver} | ${THREADS} threads | ${MEMORY} memory"
 }
 
@@ -454,7 +458,9 @@ with open(outfile, 'w') as f:
 PYEOF
 
     log "Species tree written"
-    [[ "${VERBOSE}" == true ]] && { echo "  Tree:"; cat "${WORK_DIR}/input/species_tree.nwk"; }
+    if [[ "${VERBOSE}" == true ]]; then
+        echo "  Tree:"; cat "${WORK_DIR}/input/species_tree.nwk"
+    fi
 }
 
 # =============================================================================
@@ -466,7 +472,13 @@ write_nextflow_config() {
     ensure_dir "${logs_dir}"
 
     # Auto-size Nextflow heap at 1/4 of available RAM, capped at 8 GB
-    local avail_gb; avail_gb="$(free -g 2>/dev/null | awk '/^Mem:/ {print $2}' || echo 64)"
+    # Linux: free -g; macOS: sysctl hw.memsize
+    local avail_gb
+    avail_gb="$(free -g 2>/dev/null | awk '/^Mem:/ {print $2}')" || avail_gb=""
+    if [[ -z "${avail_gb}" ]]; then
+        avail_gb="$(sysctl -n hw.memsize 2>/dev/null | awk '{print int($1/1073741824)}')" || avail_gb=""
+    fi
+    [[ -z "${avail_gb}" ]] && avail_gb=64
     local nxf_heap=$(( avail_gb / 4 ))
     [[ "${nxf_heap}" -lt 2 ]] && nxf_heap=2
     [[ "${nxf_heap}" -gt 8 ]] && nxf_heap=8
@@ -511,6 +523,7 @@ run_fastoma() {
     nextflow run "${FASTOMA_REPO}" \
         -r             "${FASTOMA_REVISION}" \
         -c             "${WORK_DIR}/nextflow.config" \
+        -profile       "${FASTOMA_PROFILE}" \
         --input                "${WORK_DIR}/input" \
         --output_folder        "${OUTPUT_DIR}" \
         --species_tree         "${WORK_DIR}/input/species_tree.nwk" \
@@ -519,8 +532,6 @@ run_fastoma() {
         --filter_gap_ratio_row "${FILTER_GAP_RATIO_ROW}" \
         --filter_gap_ratio_col "${FILTER_GAP_RATIO_COL}" \
         --nr_repr_per_hog      "${NR_REPR_PER_HOG}" \
-        --report false \
-        -profile standard \
         -resume \
         || error_exit "FastOMA pipeline failed. Check ${LOG_FILE} for details."
 
@@ -578,9 +589,10 @@ main() {
     ensure_luca_database
 
     # Read species list from config
-    mapfile -t species_keys < <(
-        python3 -c "import json; [print(k) for k in json.load(open('${CONFIG_FILE}'))['SPECIES_LIST']]"
-    )
+    species_keys=()
+    while IFS= read -r k; do
+        species_keys+=("$k")
+    done < <(python3 -c "import json; [print(k) for k in json.load(open('${CONFIG_FILE}'))['SPECIES_LIST']]")
 
     # Download data if requested
     if [[ "${AUTO_DOWNLOAD}" == true ]]; then
@@ -595,7 +607,7 @@ main() {
     # Pre-process inputs
     log "Pre-processing inputs..."
     for sp in "${species_keys[@]}"; do
-        process_gff    "${sp}"
+        [[ -n "${GFF_DIR}" ]] && process_gff "${sp}"
         filter_proteins "${sp}"
     done
 

@@ -6,5 +6,5 @@
         "gorilla": "Gorilla gorilla",
         "mouse":   "Mus musculus"
     },
-    "SPECIES_TREE": "(((human:6,chimp:6):2,gorilla:8):72,mouse:80);"
+    "SPECIES_TREE": "(((human,chimp),gorilla),mouse);"
 }

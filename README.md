@@ -60,6 +60,9 @@ wget -O ~/.fastoma/omamerdb.h5 https://omabrowser.org/All/LUCA.h5
 | wget | any | Included in `environment.yml` |
 | unzip | any | Included in `environment.yml` |
 | ncbi-datasets-cli | any | Included in `environment.yml`; only used with `--auto-download` |
+| mafft, fasttree, papermill | — | Managed automatically by Nextflow (`-profile conda`); see macOS note below |
+
+**macOS (ARM64) note:** The `conda` profile cannot resolve `omamer` on Apple Silicon. Use `--fastoma-profile docker` (requires Docker) or install `mafft`, `fasttree`, and `FastOMA[report]==0.5.1` manually into the environment and pass `--fastoma-profile standard`.
 
 ---
 
@@ -85,7 +88,7 @@ Species keys must match the keys in `SPECIES_LIST` in your config.
 ```bash
 ./run_fastoma.sh \
     --species "human:Homo sapiens,chimp:Pan troglodytes,mouse:Mus musculus" \
-    --tree "((human:6,chimp:6):75,mouse:81);" \
+    --tree "((human,chimp),mouse);" \
     --proteins-dir /path/to/proteomes \
     --gff-dir /path/to/annotations \
     --output-dir results/my_run
@@ -115,7 +118,7 @@ Species keys must match the keys in `SPECIES_LIST` in your config.
         "gorilla": "Gorilla gorilla",
         "mouse":   "Mus musculus"
     },
-    "SPECIES_TREE": "(((human:6,chimp:6):2,gorilla:8):72,mouse:80);"
+    "SPECIES_TREE": "(((human,chimp),gorilla),mouse);"
 }
 ```
 
@@ -155,7 +158,8 @@ FASTOMA / NEXTFLOW:
     --filter-gap-row F        default: 0.4
     --filter-gap-col F        default: 0.6
     --nr-repr-per-hog N       default: 3
-    --fastoma-revision REV    FastOMA git tag or branch (default: main)
+    --fastoma-revision REV    FastOMA git tag or branch (default: v0.5.1)
+    --fastoma-profile PROFILE conda|docker|singularity (default: conda)
 
 EXECUTION:
     --analysis-name NAME      Label for this run
