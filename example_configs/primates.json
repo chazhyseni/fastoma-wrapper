@@ -1,0 +1,10 @@
+{
+    "ANALYSIS_NAME": "primates_v1",
+    "SPECIES_LIST": {
+        "human":   "Homo sapiens",
+        "chimp":   "Pan troglodytes",
+        "gorilla": "Gorilla gorilla",
+        "mouse":   "Mus musculus"
+    },
+    "SPECIES_TREE": "(((human:6,chimp:6):2,gorilla:8):72,mouse:80);"
+}

@@ -1,0 +1,15 @@
+name: fastoma
+channels:
+  - bioconda
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.12
+  - nextflow>=25.04.4
+  - openjdk>=11
+  - wget
+  - biopython>=1.85
+  - pandas>=2.0
+  - pip
+  - pip:
+      - FastOMA==0.3.5

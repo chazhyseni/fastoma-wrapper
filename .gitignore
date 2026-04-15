@@ -1,0 +1,20 @@
+# Nextflow work directories
+.nextflow/
+.nextflow.log*
+work/
+.work/
+
+# FastOMA output (results are output-dir-specific, not tracked here)
+results/
+output/
+
+# Temp configs generated at runtime
+/tmp/fastoma_config.*.json
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# macOS
+.DS_Store
